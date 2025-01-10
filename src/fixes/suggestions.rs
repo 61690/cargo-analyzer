@@ -8,13 +8,15 @@ pub struct FixSuggestion {
 }
 
 pub fn generate_fix_suggestion(warning: &Warning) -> Option<FixSuggestion> {
-    // First try to get a specific fix based on the clippy code
-    if let Some(fix) = get_specific_fix(&warning.category.subcategory) {
+    let subcategory = warning.message.split_whitespace().next().unwrap_or("");
+    
+    // First try to get a specific fix based on the message
+    if let Some(fix) = get_specific_fix(subcategory) {
         return Some(fix);
     }
 
     // Fall back to category-based suggestions
-    match warning.category.category_type {
+    match warning.category {
         CategoryType::Style => generate_style_suggestion(warning),
         CategoryType::Safety => generate_safety_suggestion(warning),
         CategoryType::Performance => generate_performance_suggestion(warning),
@@ -43,7 +45,8 @@ fn get_specific_fix(clippy_code: &str) -> Option<FixSuggestion> {
 }
 
 fn generate_performance_suggestion(warning: &Warning) -> Option<FixSuggestion> {
-    match warning.category.subcategory.as_str() {
+    let subcategory = warning.message.split_whitespace().next().unwrap_or("");
+    match subcategory {
         "Allocation" => Some(FixSuggestion {
             code: "// Consider using a pre-allocated buffer\nlet mut buffer = Vec::with_capacity(size);".to_string(),
             explanation: "Pre-allocating memory can reduce reallocations".to_string(),
@@ -59,7 +62,8 @@ fn generate_performance_suggestion(warning: &Warning) -> Option<FixSuggestion> {
 }
 
 fn generate_safety_suggestion(warning: &Warning) -> Option<FixSuggestion> {
-    match warning.category.subcategory.as_str() {
+    let subcategory = warning.message.split_whitespace().next().unwrap_or("");
+    match subcategory {
         "UnsafeCode" => Some(FixSuggestion {
             code: "// Consider using safe alternatives\nslice.get(index).copied()".to_string(),
             explanation: "Using safe alternatives reduces the risk of undefined behavior".to_string(),
@@ -75,7 +79,8 @@ fn generate_safety_suggestion(warning: &Warning) -> Option<FixSuggestion> {
 }
 
 fn generate_style_suggestion(warning: &Warning) -> Option<FixSuggestion> {
-    match warning.category.subcategory.as_str() {
+    let subcategory = warning.message.split_whitespace().next().unwrap_or("");
+    match subcategory {
         "NamingConvention" => Some(FixSuggestion {
             code: "// Follow Rust naming conventions\npub struct MyType {}".to_string(),
             explanation: "Using standard naming conventions improves code readability".to_string(),
@@ -91,7 +96,8 @@ fn generate_style_suggestion(warning: &Warning) -> Option<FixSuggestion> {
 }
 
 fn generate_documentation_suggestion(warning: &Warning) -> Option<FixSuggestion> {
-    match warning.category.subcategory.as_str() {
+    let subcategory = warning.message.split_whitespace().next().unwrap_or("");
+    match subcategory {
         "MissingDocs" => Some(FixSuggestion {
             code: "/// Brief description of the item\n/// \n/// # Examples\n/// ```\n/// // Add example here\n/// ```".to_string(),
             explanation: "Adding documentation helps users understand the code".to_string(),

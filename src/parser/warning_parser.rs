@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use serde::Deserialize;
 use crate::types::{
     Warning, FileWarnings,
-    categories::{CategoryType, WarningCategory},
+    categories::CategoryType,
     priorities::Priority,
 };
 
@@ -250,12 +250,10 @@ impl WarningParser {
                 explanations.join("\n"),
                 child_messages
             ),
+            id: clippy_code.clone(),
             file: span.file_name.clone(),
             line: span.line_start,
-            category: WarningCategory::new(
-                self.categorize_clippy_warning(&clippy_code),
-                clippy_code
-            ),
+            category: self.categorize_clippy_warning(&clippy_code),
             priority: self.determine_message_priority(&diagnostic),
             suggested_fix: suggestion,
         })
@@ -367,7 +365,7 @@ mod tests {
         if let Some(AnalysisContext::Warning(warning)) = parser.parse_compiler_message(msg) {
             assert_eq!(warning.file, "src/main.rs");
             assert_eq!(warning.line, 10);
-            assert_eq!(warning.category.category_type, CategoryType::Style);
+            assert_eq!(warning.category, CategoryType::Style);
         } else {
             panic!("Expected Warning variant");
         }

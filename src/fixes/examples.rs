@@ -11,7 +11,9 @@ pub struct FixExample {
 }
 
 pub fn get_fix_example(warning: &Warning) -> Option<FixExample> {
-    match (warning.category.category_type, warning.category.subcategory.as_str()) {
+    let subcategory = warning.message.split_whitespace().next().unwrap_or("");
+    
+    match (warning.category, subcategory) {
         (CategoryType::Performance, "Locking") => Some(FixExample {
             description: "Efficient locking patterns".to_string(),
             before: r#"
@@ -51,7 +53,7 @@ fn process_data(data: &Arc<Mutex<Vec<String>>>) {
             ],
         }),
 
-        (CategoryType::Documentation, "Missing Examples") => Some(FixExample {
+        (CategoryType::Documentation, "Missing") => Some(FixExample {
             description: "Documentation examples".to_string(),
             before: r#"
 pub struct Configuration {

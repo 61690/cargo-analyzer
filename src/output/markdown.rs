@@ -1,3 +1,8 @@
+//! Markdown report generation functionality.
+//! 
+//! This module handles the creation of detailed Markdown reports containing
+//! analysis results, statistics, and trends.
+
 use crate::{
     analysis::{
         charts::{ChartConfig, ChartStyle, create_enhanced_chart},
@@ -10,19 +15,34 @@ use crate::{
 use std::io::{self, Write};
 use std::collections::HashMap;
 
+/// Handles the generation and writing of Markdown format reports.
+/// 
+/// # Fields
+/// 
+/// * `output_path` - Path where the Markdown report will be written
+/// * `build_info` - Information about the analyzed build
+#[derive(Debug)]
 pub struct MarkdownWriter<W: Write> {
     writer: W,
 }
 
 impl<W: Write> MarkdownWriter<W> {
+    /// Creates a new Markdown writer instance.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `output_path` - The path where the report will be written
+    /// * `build_info` - Build information to include in the report
     pub fn new(writer: W) -> Self {
         Self { writer }
     }
 
-    pub fn write_header(&mut self, title: &str) -> io::Result<()> {
-        writeln!(self.writer, "# {}\n", title)
-    }
-
+    /// Writes the analysis summary section of the report.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `statistics` - Collection of warning statistics to summarize
+    /// * `trends` - Optional trend analysis data
     pub fn write_summary(&mut self, stats: &WarningStatistics, timestamp: &str) -> io::Result<()> {
         writeln!(self.writer, "## Analysis Summary\n")?;
         writeln!(self.writer, "Total warnings: {}", stats.total_warnings)?;
@@ -189,6 +209,10 @@ impl<W: Write> MarkdownWriter<W> {
         writeln!(self.writer, "  clippy_analysis_{}.md⎯⎯▶ clippy_analysis_{}.md...... Detailed analysis with charts", timestamp, timestamp)?;
         // ... rest of the existing report listings ...
         Ok(())
+    }
+
+    pub fn write_header(&mut self, title: &str) -> io::Result<()> {
+        writeln!(self.writer, "# {}\n", title)
     }
 }
 

@@ -16,7 +16,7 @@ impl<'a> WarningFormatter<'a> {
         let formatted = format!(
             "{} {} in {} (line {})\n    {}\n",
             priority_marker,
-            self.warning.category.category_type,
+            self.warning.category,
             self.warning.file,
             self.warning.line,
             self.warning.message
@@ -25,7 +25,7 @@ impl<'a> WarningFormatter<'a> {
     }
 
     fn get_category_color(&self) -> Color {
-        match self.warning.category.category_type {
+        match self.warning.category {
             CategoryType::Safety => Color::Red,
             CategoryType::Performance => Color::Yellow,
             CategoryType::Style => Color::Blue,
@@ -34,7 +34,7 @@ impl<'a> WarningFormatter<'a> {
     }
 
     fn get_priority_marker(&self) -> &'static str {
-        match self.warning.category.category_type {
+        match self.warning.category {
             CategoryType::Safety => "🔴",
             CategoryType::Performance => "🟡",
             CategoryType::Documentation => "🟢",

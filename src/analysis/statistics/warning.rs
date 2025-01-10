@@ -38,7 +38,7 @@ impl WarningStatistics {
 
         for warning in warnings {
             *stats.by_category
-                .entry(warning.category.category_type.clone())
+                .entry(warning.category.clone())
                 .or_insert(0) += 1;
 
             *stats.by_priority
@@ -46,7 +46,7 @@ impl WarningStatistics {
                 .or_insert(0) += 1;
 
             *stats.by_subcategory
-                .entry(warning.category.subcategory.clone())
+                .entry(warning.message.clone())
                 .or_insert(0) += 1;
         }
 

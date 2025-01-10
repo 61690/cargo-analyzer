@@ -42,7 +42,7 @@ impl<W: Write> FixPlanGenerator<W> {
         let mut priority_groups: HashMap<Priority, HashMap<CategoryType, CategoryStats>> = HashMap::new();
         
         for warning in warnings {
-            let priority = match warning.category.category_type {
+            let priority = match warning.category {
                 CategoryType::Safety => Priority::Critical,
                 CategoryType::Performance => Priority::High,
                 CategoryType::Style => Priority::Low,
@@ -52,13 +52,13 @@ impl<W: Write> FixPlanGenerator<W> {
             let stats = priority_groups
                 .entry(priority)
                 .or_default()
-                .entry(warning.category.category_type)
+                .entry(warning.category)
                 .or_default();
             
             stats.count += 1;
             stats.files.insert(warning.file.clone());
             stats.subcategories
-                .entry(warning.category.subcategory.clone())
+                .entry(warning.message.clone())
                 .or_default()
                 .push(warning);
         }

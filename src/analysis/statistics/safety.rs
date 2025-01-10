@@ -35,15 +35,15 @@ pub struct ThreadSafetyStatistics {
 impl SafetyStatistics {
     pub fn update(&mut self, warning: &Warning) {
         self.total_issues += 1;
-        match warning.category.subcategory.as_str() {
-            "Type Casting" => {
+        match warning.message.split_whitespace().next().unwrap_or("") {
+            "Type" => {
                 self.casting_details.total_casts += 1;
                 self.casting_details.by_type
                     .entry(warning.message.clone())
                     .and_modify(|e| *e += 1)
                     .or_insert(1);
             },
-            "Unsafe Code" => {
+            "Unsafe" => {
                 self.unsafe_details.total_unsafe += 1;
                 if warning.message.contains("raw pointer") {
                     self.unsafe_details.raw_pointers += 1;
@@ -55,7 +55,7 @@ impl SafetyStatistics {
                     self.unsafe_details.mutable_statics += 1;
                 }
             },
-            "Thread Safety" => {
+            "Thread" => {
                 self.thread_safety_details.total_issues += 1;
                 if warning.message.contains("Send") || warning.message.contains("Sync") {
                     self.thread_safety_details.send_sync_violations += 1;

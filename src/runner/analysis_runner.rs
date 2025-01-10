@@ -17,6 +17,24 @@ use crate::{
     },
 };
 
+/// Provides the core analysis runner implementation for processing Clippy warnings.
+
+/// Main struct responsible for executing the analysis workflow and generating reports.
+/// 
+/// The `AnalysisRunner` coordinates the entire analysis process, including:
+/// - Parsing Clippy warnings
+/// - Generating statistics
+/// - Creating reports
+/// - Managing historical data
+/// 
+/// # Example
+/// 
+/// ```rust
+/// use cargo_analyzer::runner::analysis_runner::AnalysisRunner;
+/// 
+/// let runner = AnalysisRunner::new();
+/// runner.run().expect("Analysis failed");
+/// ```
 pub struct AnalysisRunner {
     color_writer: ColorWriter,
     timestamp: String,
@@ -25,6 +43,7 @@ pub struct AnalysisRunner {
 }
 
 impl AnalysisRunner {
+    /// Creates a new instance of the analysis runner with default configuration.
     pub fn new() -> std::io::Result<Self> {
         let debug_log = std::io::BufWriter::new(
             OpenOptions::new()
@@ -41,6 +60,11 @@ impl AnalysisRunner {
         })
     }
 
+    /// Creates a new instance with a custom reports directory.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `reports_dir` - Path to the directory where reports will be stored
     pub fn new_with_reports_dir(reports_dir: Option<PathBuf>) -> std::io::Result<Self> {
         let debug_log = std::io::BufWriter::new(
             OpenOptions::new()
@@ -61,6 +85,18 @@ impl AnalysisRunner {
         self.timestamp = timestamp.to_string();
     }
 
+    /// Executes the complete analysis workflow.
+    /// 
+    /// # Returns
+    /// 
+    /// Returns `Result<(), Error>` indicating success or failure of the analysis
+    /// 
+    /// # Errors
+    /// 
+    /// Will return an error if:
+    /// - File parsing fails
+    /// - Report generation fails
+    /// - Output directory is not writable
     pub fn run(&mut self, input_path: &str) -> std::io::Result<()> {
         self.debug_log("Starting Clippy Analyzer")?;
         
@@ -231,7 +267,7 @@ impl AnalysisRunner {
                 "{},{},{:?},{},{:?},{}",
                 warning.file,
                 warning.line,
-                warning.category.category_type,
+                warning.category,
                 warning.message.replace(",", ";"),  // Escape commas
                 warning.priority,
                 warning.suggested_fix.as_ref().unwrap_or(&String::new()).replace(",", ";")

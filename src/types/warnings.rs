@@ -1,20 +1,42 @@
+//! Core warning types and related functionality.
+//! 
+//! This module defines the fundamental types used to represent and process
+//! Clippy warnings throughout the analysis process.
+
 use std::path::PathBuf;
 use serde::{Serialize, Deserialize};
-use super::categories::{WarningCategory, CategoryType};
+use super::categories::CategoryType;
 use super::priorities::Priority;
+
+/// Represents the analysis result of a warning: (severity score, impact description)
+pub type WarningAnalysis = (u8, String);
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Warning {
-    pub category: WarningCategory,
+    /// Unique identifier for the warning
+    pub id: String,
+    /// The specific warning message
     pub message: String,
-    pub file: String,
-    pub line: u32,
+    /// Category of the warning (style, safety, etc.)
+    pub category: CategoryType,
+    /// Priority level of the warning
     pub priority: Priority,
+    /// File path where the warning was found
+    pub file: String,
+    /// Line number where the warning was found
+    pub line: u32,
+    /// Suggested fix for the warning
     pub suggested_fix: Option<String>,
 }
 
 impl Warning {
-    pub fn analyze(&self) -> (u8, String) {
+    /// Analyzes the warning to extract additional insights.
+    /// 
+    /// This method processes the warning's contents to determine:
+    /// - Impact on code quality
+    /// - Suggested fixes
+    /// - Related patterns
+    pub fn analyze(&self) -> WarningAnalysis {
         let severity_score = match self.priority {
             Priority::Critical => 5,
             Priority::High => 4,
@@ -23,7 +45,7 @@ impl Warning {
             Priority::Trivial => 1,
         };
 
-        let impact_description = match self.category.category_type {
+        let impact_description = match self.category {
             CategoryType::Safety => format!("Safety issue in {} (line {})", self.file, self.line),
             CategoryType::Performance => format!("Performance bottleneck in {} (line {})", self.file, self.line),
             CategoryType::Style => format!("Style improvement needed in {} (line {})", self.file, self.line),
